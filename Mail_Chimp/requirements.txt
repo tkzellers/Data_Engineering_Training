@@ -1,0 +1,2 @@
+dotenv
+mailchimp_marketing
