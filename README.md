@@ -1,7 +1,5 @@
 # Data_Engineering_Training
 
-#Amplitude Project
-
 # Amplitude Export Script
 
 ## Summary
