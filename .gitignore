@@ -1,2 +1,4 @@
 dengvenv/
-Mail_Chimp/.env
+
+*.env
+/.env/
