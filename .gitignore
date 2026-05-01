@@ -1,1 +1,6 @@
 dengvenv/
+
+*.env
+/.env/
+
+api_call/amplitude_data/
