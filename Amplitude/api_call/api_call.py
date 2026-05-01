@@ -5,6 +5,7 @@ import json
 from io import BytesIO
 import zipfile
 import gzip
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -16,8 +17,12 @@ data_region = os.getenv('AMP_DATA_REGION')
 base_url = "https://analytics.eu.amplitude.com/api/2/export"
 
 #YYYYMMDDTHH (note the T in there is hard required)
-start_time = '20260429T01'
-end_time = '20260429T23'
+# start_time = '20260429T01'
+# end_time = '20260429T23'
+
+start_time = (datetime.now() - timedelta(hours=24)).strftime('%Y%m%dT%H')
+end_time = datetime.now().strftime('%Y%m%dT%H')
+print(f"Start time: {start_time}, End time: {end_time}")
 
 # start_time = input("Enter the start date for the data export (format: YYYYMMDD) or press t for today")
 # end_time = input("Enter the end date for the data export (format: YYYYMMDD) or press enter to use the same date as the start date")
@@ -36,7 +41,7 @@ def extract_first_zip(response):
         #extract the zip files from that "virtual" zip file, and write those into a new directory called amplitude_data
         zip_bytes = BytesIO(response.content)
         with zipfile.ZipFile(zip_bytes, 'r') as z:
-            z.extractall('amplitude_data') #One issue here is the 100011471 directory that gets created, where the .gz files are written. I hardcode this later. 
+            z.extractall('amplitude_export_data') #One issue here is the 100011471 directory that gets created, where the .gz files are written. I hardcode this later. 
 
 def filename_as_datetime(filename):
         #takes the .gz filename and converts it to what I hope is an easily usable datetime format for snowflake?
@@ -48,7 +53,7 @@ def extract_second_gzip(filename):
             #uses gzip library to open and then read the .gz files, and converts the resulting arrangement of json lines into an
             #actual json array, which is then written into a new file, but with a proper .json file extension, and a name that is just the datetime
             #value from the original filename from amplitude.
-            with gzip.open("amplitude_data/100011471/" + filename, 'rb') as gzfile:
+            with gzip.open("amplitude_export_data/100011471/" + filename, 'rb') as gzfile:
                 data = gzfile.read()
             json_string = data.decode('utf-8')
             json_lines = json_string.splitlines()
@@ -61,7 +66,7 @@ def extract_second_gzip(filename):
             #separate function to parse the filename into a datetime that might be easier to work with Snowflake?
             json_filename = filename_as_datetime(filename)
 
-            with open(f'amplitude_data/{json_filename}', 'w') as json_file:
+            with open(f'amplitude_export_data/{json_filename}', 'w') as json_file:
                 #json_file.write(json_data)
                 json.dump(json_data, json_file)
 
@@ -75,7 +80,7 @@ if response_code == 200:
     extract_first_zip(response)
 
     #100011471 is a hardcoded directory path, would like to make dynamic in the future.
-    for filename in os.listdir("amplitude_data/100011471"):
+    for filename in os.listdir("amplitude_export_data/100011471"):
         if filename.endswith('.gz'):
              extract_second_gzip(filename)
         else:
