@@ -7,6 +7,8 @@ import zipfile
 import gzip
 from datetime import datetime, timedelta
 import time
+import shutil
+import tempfile
 
 load_dotenv()
 
@@ -35,61 +37,57 @@ params = {
 #first script gets the response, records time, records size of the response.
 start_time = time.process_time()
 response = requests.get(base_url, params=params, auth=(api_key, secret_key))
+
+#response info
 response_code = response.status_code
 response_message = response.text
 response_size = len(response.content)
 end_time = time.process_time()
+#print response info
 print(f"Response code: {response_code}, Response message: {response.text}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
 
 
 
-def extract_first_zip(response):
+def extract_first_zip(response, temp_dir):
         #takes the response from the API call, keeping the data in memory with the BytesIO function, so that I can then
-        #extract the zip files from that "virtual" zip file, and write those into a new directory called amplitude_data
-        zip_bytes = BytesIO(response.content)
+        #extract the zip files from that "virtual" zip file, and write those into a newly made temp directory 
+        
+        zip_bytes = BytesIO(response.content) #data is read into memory as a zip file, without writing it to disk first
+
         with zipfile.ZipFile(zip_bytes, 'r') as z:
-            z.extractall('amplitude_export_data') #One issue here is the 100011471 directory that gets created, where the .gz files are written. I hardcode this later. 
+            z.extractall(temp_dir) #extract the zip file into the temp directory 
 
-def filename_as_datetime(filename):
-        #removes .gz from filename
-        json_filename = filename[:-3]
+def extract_second_gzip(directory):
+    '''directory is always the temp_dir we created in the first extraction function '''
 
-def extract_second_gzip(filename):
-            #uses gzip library to open and then read the .gz files, and converts the resulting arrangement of json lines into an
-            #actual json array, which is then written into a new file, but with a proper .json file extension, and a name that is just the datetime
-            #value from the original filename from amplitude.
-            with gzip.open("amplitude_export_data/100011471/" + filename, 'rb') as gzfile:
-                data = gzfile.read()
-            json_string = data.decode('utf-8')
-            json_lines = json_string.splitlines()
-            json_data = []
-
-            for line in json_lines:
-                object = json.loads(line)
-                json_data.append(object)
-            
-            #separate function to parse the filename into a datetime that might be easier to work with Snowflake?
-            json_filename = filename_as_datetime(filename)
-
-            with open(f'amplitude_export_data/{json_filename}', 'w') as json_file:
-                #json_file.write(json_data)
-                json.dump(json_data, json_file)
-
-            print("Wrote jsonfname: " + json_filename)
+    data_dir = "amplitude_export_data"
+    os.makedirs(data_dir, exist_ok=True) #make a new directory for outputting the data
+    
+    unzipped_folder = next(f for f in os.listdir(directory) if f.isdigit()) #take the first folder that is named as a digit, which we know is always the one we want (the only one)
+    folder_path = os.path.join(directory, unzipped_folder) #make a path to the unzipped folder 
+    
+    for root,_,files in os.walk(folder_path): #get into the unzipped folder, call out the files from the touple created by os.walk() 
+        for filename in files:
+            if filename.endswith('.gz'):
+                gz_path = os.path.join(root, filename)
+                json_filename = filename[:-3] 
+                output_path = os.path.join(data_dir, json_filename)
+                with gzip.open(gz_path, 'rb') as gz_file, open(output_path, 'wb') as out_file:
+                    shutil.copyfileobj(gz_file, out_file) #copyfileobj is a function that copies the data from the gz file to the json file, without having to read the entire file into memory at once
+                print("Wrote jsonfname: " + json_filename)
+            else:
+                print(f"{filename} is not a .gz file, skipped")
             
 
 #Running the functions
 if response_code == 200:
     print(f"Connection Success - {response_code}")
 
-    extract_first_zip(response)
+    temp_dir = tempfile.mkdtemp() #make a temp directory to store the unzipped output 
 
-    #100011471 is a hardcoded directory path, would like to make dynamic in the future.
-    for filename in os.listdir("amplitude_export_data/100011471"):
-        if filename.endswith('.gz'):
-             extract_second_gzip(filename)
-        else:
-            print(f"{filename} is no a .gz file, skipped")
+    extract_first_zip(response, temp_dir)
+
+    extract_second_gzip(temp_dir)
 
 else: 
     print(f"Connection issue - {response_code}: {response.text}")
