@@ -71,7 +71,7 @@ def extract_second_gzip(filename):
                 json.dump(json_data, json_file)
 
             print("Wrote jsonfname: " + json_filename)
-
+            
 
 #Running the functions
 if response_code == 200:
