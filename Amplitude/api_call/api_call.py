@@ -54,10 +54,11 @@ def extract_first_zip(response):
             print("Error reading zip file from response")
             logger.error("Error reading zip file from response")
             return None
-        
+        start_extract = time.process_time()
         with zipfile.ZipFile(zip_bytes, 'r') as z:
             z.extractall(temp_dir) #extract the zip file into the temp directory 
-        
+        end_extract = time.process_time()
+        logger.info(f"Extracted zip folder successfully. Extract time: {end_extract - start_extract} seconds")
         return temp_dir #return the temp directory so that we can use it in the next function to find the gz files to extract
 
 def extract_second_gzip(directory):
@@ -65,11 +66,13 @@ def extract_second_gzip(directory):
 
     data_dir = "amplitude_export_data"
     os.makedirs(data_dir, exist_ok=True) #make a new directory for outputting the data
+    logger.info(f"Amplitude_export_data directory created")
     
     unzipped_folder = next(f for f in os.listdir(directory) if f.isdigit()) #take the first folder that is named as a digit, which we know is always the one we want (the only one)
     folder_path = os.path.join(directory, unzipped_folder) #make a path to the unzipped folder 
     
-    for root,_,files in os.walk(folder_path): #get into the unzipped folder, call out the files from the touple created by os.walk() 
+    for root,_,files in os.walk(folder_path): #get into the unzipped folder, call out the files from the touple created by os.walk()
+        print(f"Reading {len(files)} files") 
         for filename in files:
             if filename.endswith('.gz'):
                 gz_path = os.path.join(root, filename)
@@ -80,8 +83,9 @@ def extract_second_gzip(directory):
                 print("Wrote jsonfname: " + json_filename)
             else:
                 print(f"{filename} is not a .gz file, skipped")
-    # Delete the temporary directory
+    logger.info(f"Processed all files and copied into {data_dir}")
     shutil.rmtree(temp_dir)
+    logger.info(f"Removed temporary directory")
 
 
 load_dotenv()
@@ -89,6 +93,7 @@ load_dotenv()
 api_key = os.getenv('AMP_API_KEY')
 secret_key = os.getenv('AMP_SECRET_KEY')
 data_region = os.getenv('AMP_DATA_REGION')
+logger.info(f"Loaded API keys from .env")
 
 base_url = "https://analytics.eu.amplitude.com/api/2/export"
 
@@ -96,6 +101,7 @@ start_time = (datetime.now() - timedelta(hours=24)).strftime('%Y%m%dT%H')
 end_time = datetime.now().strftime('%Y%m%dT%H')
 
 print(f"Start time: {start_time}, End time: {end_time}")
+logger.info(f"Recognized start time: {start_time} and end time: {end_time}")
 
 # start_time = input("Enter the start date for the data export (format: YYYYMMDD) or press t for today")
 # end_time = input("Enter the end date for the data export (format: YYYYMMDD) or press enter to use the same date as the start date")

@@ -2,4 +2,4 @@ dengvenv/
 
 *.env
 *amplitude_export_data/
-*.logs/
+*logs/
