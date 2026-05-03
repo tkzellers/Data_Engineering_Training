@@ -6,6 +6,7 @@ from io import BytesIO
 import zipfile
 import gzip
 from datetime import datetime, timedelta
+import time
 
 load_dotenv()
 
@@ -16,12 +17,10 @@ data_region = os.getenv('AMP_DATA_REGION')
 
 base_url = "https://analytics.eu.amplitude.com/api/2/export"
 
-#YYYYMMDDTHH (note the T in there is hard required)
-# start_time = '20260429T01'
-# end_time = '20260429T23'
 
 start_time = (datetime.now() - timedelta(hours=24)).strftime('%Y%m%dT%H')
 end_time = datetime.now().strftime('%Y%m%dT%H')
+
 print(f"Start time: {start_time}, End time: {end_time}")
 
 # start_time = input("Enter the start date for the data export (format: YYYYMMDD) or press t for today")
@@ -32,8 +31,16 @@ params = {
     'end': end_time
 }
 
+
+#first script gets the response, records time, records size of the response.
+start_time = time.process_time()
 response = requests.get(base_url, params=params, auth=(api_key, secret_key))
 response_code = response.status_code
+response_message = response.text
+response_size = len(response.content)
+end_time = time.process_time()
+print(f"Response code: {response_code}, Response message: {response.text}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
+
 
 
 def extract_first_zip(response):
@@ -44,10 +51,8 @@ def extract_first_zip(response):
             z.extractall('amplitude_export_data') #One issue here is the 100011471 directory that gets created, where the .gz files are written. I hardcode this later. 
 
 def filename_as_datetime(filename):
-        #takes the .gz filename and converts it to what I hope is an easily usable datetime format for snowflake?
+        #removes .gz from filename
         json_filename = filename[:-3]
-        json_filename = json_filename.split('_')[1] + "#" + json_filename.split('_')[2].split('#')[0]+"_00_00"+".json"
-        return json_filename
 
 def extract_second_gzip(filename):
             #uses gzip library to open and then read the .gz files, and converts the resulting arrangement of json lines into an
