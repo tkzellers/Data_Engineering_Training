@@ -1,8 +1,5 @@
 dengvenv/
 
 *.env
-/.env/
-
-api_call/amplitude_data/
-api_call/amplitude_export_data/
 *amplitude_export_data/
+*.logs/
