@@ -1,7 +1,5 @@
 import os
-import requests
 from dotenv import load_dotenv
-import json
 from io import BytesIO
 import zipfile
 import gzip
@@ -10,22 +8,14 @@ import time
 import shutil
 import tempfile
 import logging
-from datetime import datetime
 
-from Amplitude.amplitude_extract.logging_utils import setup_logging 
-from Amplitude.amplitude_extract.api_utils import make_api_call 
+logger = logging.getLogger(__name__)
 
 
-
-
-
-
-
-def extract_first_zip(response):
+def extract_first_zip(response, temp_dir):
         #takes the response from the API call, keeping the data in memory with the BytesIO function, so that I can then
         #extract the zip files from that "virtual" zip file, and write those into a newly made temp directory 
         
-        temp_dir = tempfile.mkdtemp() #make a temp directory to store the unzipped output 
         try:
             zip_bytes = BytesIO(response.content) #data is read into memory as a zip file, without writing it to disk first
         except:
@@ -66,48 +56,5 @@ def extract_second_gzip(directory):
             else:
                 print(f"{filename} is not a .gz file, skipped")
     logger.info(f"Processed all files and copied into {data_dir}")
-    shutil.rmtree(temp_dir)
+    shutil.rmtree(directory)
     logger.info(f"Removed temporary directory")
-
-
-load_dotenv()
-# Read .env file
-api_key = os.getenv('AMP_API_KEY')
-secret_key = os.getenv('AMP_SECRET_KEY')
-data_region = os.getenv('AMP_DATA_REGION')
-logger.info(f"Loaded API keys from .env")
-
-base_url = "https://analytics.eu.amplitude.com/api/2/export"
-
-start_time = (datetime.now() - timedelta(hours=24)).strftime('%Y%m%dT%H')
-end_time = datetime.now().strftime('%Y%m%dT%H')
-
-print(f"Start time: {start_time}, End time: {end_time}")
-logger.info(f"Recognized start time: {start_time} and end time: {end_time}")
-
-# start_time = input("Enter the start date for the data export (format: YYYYMMDD) or press t for today")
-# end_time = input("Enter the end date for the data export (format: YYYYMMDD) or press enter to use the same date as the start date")
-
-params = {
-    'start': start_time,
-    'end': end_time
-}
-
-
-##===============================================================================##
-#Running the functions
-logger = setup_logging()
-
-response_and_code = make_api_call(base_url, params, api_key, secret_key)
-
-response = response_and_code[0]
-response_code = response_and_code[1]    
-
-if response_code == 200:
-    
-    temp_dir = extract_first_zip(response)
-    
-    extract_second_gzip(temp_dir)
-
-else: 
-    print(f"Connection issue - {response_code}: {response.text}")

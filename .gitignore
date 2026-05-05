@@ -1,6 +1,7 @@
 dengvenv/
-
+*__pycache__/
 *.env
-/.env/
-
-api_call/amplitude_data/
+*amplitude_export_data/
+*logs/
+*_data.json
+*data
