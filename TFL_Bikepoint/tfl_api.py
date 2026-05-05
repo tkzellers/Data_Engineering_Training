@@ -11,10 +11,14 @@ from datetime import datetime
 import os   
 import time
 import logging
+import os
+from dotenv import load_dotenv
+import boto3
 
 # Getting the current date and time
 current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
+######Log Setup
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
@@ -28,6 +32,24 @@ logging.basicConfig(
 
 logger = logging.getLogger() 
 logger.info("Logger initiated")
+#######Log Setup
+
+
+# #######Get Keys
+# load_dotenv()
+# api_key = os.getenv('AWS_KEY_ID')
+# secret_key = os.getenv('AWS_SECRET_KEY')
+# bucket = os.getenv('AWS_BUCKET_NAME')
+# logger.info("Retrieved AWS keys")
+
+# s3_client = boto3.client(
+#     's3',
+#     aws_access_key_id = api_key,
+#     aws_secret_access_key = secret_key,
+# )
+# ########Get Keys
+
+
 
 #Set Variables (URLs, parameters, etc)
 base_url = "https://api.tfl.gov.uk/BikePoint"
@@ -45,8 +67,15 @@ while attempt_counter < 4:
         data = response.json()
         num_bikepoints = len(data)
         filename = (f"{data_dir}/{current_time}.json")
+        
+        
         with open(filename, "w") as file:
                 json.dump(data, file)
+
+        # #aws boto3 file upload, replaces the above open()
+        # s3_client.upload_file(data, bucket, filename)
+        # logger.info(f"Uploaded {filename} to S3")
+
         print(f'File {filename} was created - Success!')
         logger.info(f'File {filename} was created - Success!')
         break
