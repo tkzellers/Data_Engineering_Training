@@ -1,5 +1,5 @@
 dengvenv/
-
+*__pycache__/
 *.env
 *amplitude_export_data/
 *logs/

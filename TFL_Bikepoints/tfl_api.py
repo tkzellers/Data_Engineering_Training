@@ -10,6 +10,7 @@
 import requests
 import json
 from datetime import datetime
+import os   
 
 # Getting the current date and time
 current_time = datetime.now()
@@ -24,10 +25,12 @@ response = requests.get(base_url)
 response_code = response.status_code
 data = response.json()
 
-for num in range(num_bikepoints):
+os.mkdir("data")
+
+for num in range(10) #range(num_bikepoints):
     id = data[num]['id']
     blob = data[num]
-    with open((f"bikepoint_{id}_data.json"), "w") as file:
+    with open((f"data/bikepoint_{id}_data.json"), "w") as file:
         json.dump(blob, file)
 
 
