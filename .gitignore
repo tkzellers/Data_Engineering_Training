@@ -3,3 +3,5 @@ dengvenv/
 *.env
 *amplitude_export_data/
 *logs/
+*_data.json
+*data

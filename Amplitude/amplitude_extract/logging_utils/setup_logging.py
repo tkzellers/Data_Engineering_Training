@@ -6,9 +6,10 @@ from datetime import datetime
 
 
 def setup_logging():
-    os.makedirs("logs", exist_ok=True)
+    log_dir = 'logs'
+    os.makedirs(log_dir, exist_ok=True)
 
-    log_filename = (f"logs/{__name__}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+    log_filename = (f"{log_dir}/{__name__}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 
     logging.basicConfig(
         level=logging.INFO, 
