@@ -2,8 +2,8 @@ import tempfile
 import os
 import time
 
-from utils.api_tools import make_api_call
-from utils.api_tools import construct_url
+from utils.api import make_api_call
+from utils.api import construct_url
 from utils.setup_logging import setup_logging
 from utils.unzip_copy import extract_zip, extract_second_gzip
 from load_amplitude import load_s3
@@ -14,7 +14,8 @@ print("Starting Amplitude data extraction script")
 #Running the functions#
 
 #==========Intiate Logging==========#
-logger = setup_logging()
+logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+logger = setup_logging(logs_dir)
 logger.info("Logger initiated")
 #==========#
 
