@@ -16,8 +16,8 @@ def setup_logging(logs_dir):
 
     logging.basicConfig(
         level=logging.INFO, 
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', #'name' will take the name of the logger, which I set to be the name of the module using "logger = logging.getlogger(__name__)"
         filename=log_filepath
     )
 
-    return logging.getLogger() #this takes the name of the current module (file) as the logger name, which is a common practice in Python logging
+    return logging.getLogger() #this initializes the logger when run in the main module, and sets the logger name for main to 'root'. 
