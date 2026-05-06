@@ -35,10 +35,11 @@ def load_s3(data_dir):
         for filename in files:
             if filename.endswith('.json'):
                 source_path = os.path.join(root, filename)
+                aws_destination = 'python_export/' + filename
                 try:
-                    s3_client.upload_file(source_path, bucket, filename)
+                    s3_client.upload_file(source_path, bucket, aws_destination)
                     #print(f"{filename} was uploaded to S3")    
-                    s3_client.head_object(Bucket = bucket, Key = filename) #checks if the file exists in s3, would error if it doesn't
+                    s3_client.head_object(Bucket = bucket, Key = aws_destination) #checks if the file exists in s3, would error if it doesn't
                     os.remove(source_path) #Will remove files after successful upload
                     filecount_end -= 1
                 except Exception as e:
