@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
-logger = logging.getLogger(__name__)
+api_logger = logging.getLogger("utils.setup_logging" + __name__)
 
 
 def construct_url():
@@ -20,7 +20,7 @@ def construct_url():
     url['api_key'] = os.getenv('AMP_API_KEY')
     url['secret_key'] = os.getenv('AMP_SECRET_KEY')
     data_region = os.getenv('AMP_DATA_REGION')
-    logger.info(f"Loaded API keys from .env")
+    api_logger.info(f"Loaded API keys from .env")
 
     url['base_url'] = "https://analytics.eu.amplitude.com/api/2/export"
 
@@ -28,7 +28,7 @@ def construct_url():
     end_time = datetime.now().strftime('%Y%m%dT%H')
 
     print(f"Start time: {start_time}, End time: {end_time}")
-    logger.info(f"Recognized start time: {start_time} and end time: {end_time}")
+    api_logger.info(f"Recognized start time: {start_time} and end time: {end_time}")
 
     # start_time = input("Enter the start date for the data export (format: YYYYMMDD) or press t for today")
     # end_time = input("Enter the end date for the data export (format: YYYYMMDD) or press enter to use the same date as the start date")
@@ -53,7 +53,7 @@ def make_api_call(base_url, params, api_key, secret_key):
     end_time = time.process_time()
     #print response info
     print(f"Response code: {response_code}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
-    logger.info(f"API call made to {base_url} with params {params}. Response code: {response_code}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
+    api_logger.info(f"API call made to {base_url} with params {params}. Response code: {response_code}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
 
     return response, response_code
 

@@ -14,10 +14,12 @@ print("Starting Amplitude data extraction script")
 #Running the functions#
 
 #==========Intiate Logging==========#
-logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs') #make a permanent path for the logs files
 logger = setup_logging(logs_dir)
 logger.info("Logger initiated")
+print(logs_dir)
 #==========#
+
 
 #==========Setup Directories I need in Functions==========#
 temp_dir = tempfile.mkdtemp() #make a temp directory to store the unzipped output
