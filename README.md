@@ -48,4 +48,4 @@ load_amplitude.py - load_s3()
 1. Make date selection dynamic
 2. Mosularize the code in a more effective way.  Particularly the 'unzipping' functions, which are huge.
    a. Should I centralize brining in .env variables?  
-3. 
+3. Add folder structure to S3 bucket and adjust scripts to organize files
