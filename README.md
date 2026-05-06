@@ -14,28 +14,33 @@ This script connects to the Amplitude Export API, downloads event data for a ran
 2. Currently configured only for the **EU Residency Server**
 3. Uses a set of API keys specific to The Information Lab
 4. See the documentation for more details: [Export API | Amplitude](https://amplitude.com/docs/apis/analytics/export#)
+5. Connection errors are logged and handled, if there is a Server (500) error, the script will retry 3 times before stopping.
 
 ### 2. Downloading the Data
 
 1. Currently hardcoded to produce event data for the **past 24 hours**
-2. Will print an error and stop if the connection is not successful
-3. Raw data is downloaded and written into memory, not to disk
+4. The raw data is first written into memory, before being unzipped (see below)
 
-### 3. Unzipping and Formatting the Data
+### 3. Unzipping and Writing the Data
 
-1. The raw data is unzipped into a directory called `amplitude_data` (automatically created).
-2. The raw data comes in the form of a zipped folder, which contains gzipped files of lines of JSON.
-   1. Note: the folder is named `100011471`, which is specific to The Information Lab. This directory is **hard-coded** in the script for now.
-3. Each gzipped `.json` file contains lines of JSON (one line for each object).
-4. These lines of JSON are converted into a single JSON array.
-5. This JSON array is then written to a file, with a name corresponding to the date+hour as indicated by the filename as it came out of the Amplitude API.
-   1. So each file contains an array of event objects for a particular hour on a particular day.
-6. These files are **written into that same `amplitude_data` directory for now**.
+1. The raw data comes in the form of a zipped folder, which contains gzipped files of lines of JSON.
+   a. Each gzipped `.json` file contains lines of JSON (one line for each object). 
+2. First, the unzipped data (which is still just stored in memory from the steps above) is written into a temproary directory. 
+   a. This produces a folder with a name that corresponds to some kind of Account number (integer)
+   b. Within this folder is a series of gzipped .json files that contain lines of JSON (one line for each object)
+5. The gzipped file is decompressed and opened, and then the actual .json file is written into a new directory called **"amplitude_export_data"**
+6. The temporary directory which holds the gzipped files is deleted, leaving only the unzipped .json files. 
+
+### 4. Loading the Data to AWS S3
+
+1. An S3 Client is initialized, connecting (currently) to my specific S3 bucket for this project: **'amplitude-des6-tkz-bucket'**
+2. The script iterates through the **"amplitude_export_data"** directory and uploads the file to the bucket.
+3. It then checks to make sure that file is in-fact in the bucket (using a call to head_object())
+4. Then it deletes the file that was just successfully uploaded. 
 
 ## Planned Improvements
 
-1. Add logging for better debugging and monitoring
 2. Make date selection dynamic
-3. Make the API base URL dynamic in case someone wants to use this outside the EU
-4. Unpack the zipped folder and avoid hard-coding the directory path with TIL’s ID
-5. Add code to instead put these files into an S3 bucket (loading!)
+3. Mosularize the code in a more effective way.  Particularly the 'unzipping' functions, which are huge.
+   a. Should I centralize brining in .env variables?  
+5. 
