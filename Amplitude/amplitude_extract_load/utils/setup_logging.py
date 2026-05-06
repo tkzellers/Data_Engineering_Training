@@ -3,11 +3,10 @@ import os
 import logging
 from datetime import datetime
 
-
-
 def setup_logging():
     log_dir = 'logs'
     os.makedirs(log_dir, exist_ok=True)
+    log_dir = os.path.join(log_dir)
 
     log_filename = (f"{log_dir}/{__name__}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 

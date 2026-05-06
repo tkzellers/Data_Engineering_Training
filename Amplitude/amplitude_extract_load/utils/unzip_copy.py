@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def extract_first_zip(response, temp_dir):
+def extract_zip(response, temp_dir):
         #takes the response from the API call, keeping the data in memory with the BytesIO function, so that I can then
         #extract the zip files from that "virtual" zip file, and write those into a newly made temp directory 
         
@@ -26,14 +26,16 @@ def extract_first_zip(response, temp_dir):
         with zipfile.ZipFile(zip_bytes, 'r') as z:
             z.extractall(temp_dir) #extract the zip file into the temp directory 
         end_extract = time.process_time()
-        logger.info(f"Extracted zip folder successfully. Extract time: {end_extract - start_extract} seconds")
+        print(f"Extracted successfully into {temp_dir}. Extract time: {end_extract - start_extract} seconds")
+        logger.info(f"Extracted successfully into {temp_dir}. Extract time: {end_extract - start_extract} seconds")
         return temp_dir #return the temp directory so that we can use it in the next function to find the gz files to extract
 
-def extract_second_gzip(directory):
+
+def extract_second_gzip(directory, data_dir):
     '''directory is always the temp_dir we created in the first extraction function '''
 
-    data_dir = "amplitude_export_data"
-    os.makedirs(data_dir, exist_ok=True) #make a new directory for outputting the data
+    # data_dir = "amplitude_export_data"
+    # os.makedirs(data_dir, exist_ok=True) #make a new directory for outputting the data
     logger.info(f"Amplitude_export_data directory created")
     
     try:
@@ -44,7 +46,7 @@ def extract_second_gzip(directory):
         logger.error("Error finding unzipped folder")
 
     for root,_,files in os.walk(folder_path): #get into the unzipped folder, call out the files from the touple created by os.walk()
-        print(f"Reading {len(files)} files") 
+        print(f"Extracting and Copying {len(files)} files") 
         for filename in files:
             if filename.endswith('.gz'):
                 gz_path = os.path.join(root, filename)
@@ -52,7 +54,7 @@ def extract_second_gzip(directory):
                 output_path = os.path.join(data_dir, json_filename)
                 with gzip.open(gz_path, 'rb') as gz_file, open(output_path, 'wb') as out_file:
                     shutil.copyfileobj(gz_file, out_file) #copyfileobj is a function that copies the data from the gz file to the json file, without having to read the entire file into memory at once
-                print("Wrote jsonfname: " + json_filename)
+                #print("Wrote jsonfname: " + json_filename)
             else:
                 print(f"{filename} is not a .gz file, skipped")
     logger.info(f"Processed all files and copied into {data_dir}")
