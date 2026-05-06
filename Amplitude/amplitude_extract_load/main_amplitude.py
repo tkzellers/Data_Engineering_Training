@@ -2,10 +2,10 @@ import tempfile
 import os
 import time
 
-from api_utils.make_api_call import make_api_call
-from api_utils.url_constructor import construct_url
-from logging_utils.setup_logging import setup_logging
-from unzip_copy_utils.unzip_copy import extract_first_zip, extract_second_gzip
+from utils.api_tools import make_api_call
+from utils.api_tools import construct_url
+from utils.setup_logging import setup_logging
+from utils.unzip_copy import extract_zip, extract_second_gzip
 from load_amplitude import load_s3
 
 print("Imported tools and modules")
@@ -47,7 +47,7 @@ while attempt_counter < 4:
         #==========Unzip and copy the downloaded files into the data directory==========#
         print("Begin Unzipping and Copying")
         logger.info("Begin Unzipping and Copying")
-        extract_first_zip(response, temp_dir)
+        extract_zip(response, temp_dir)
         extract_second_gzip(temp_dir, data_dir)
         #==========#
         logger.info("Finished Unzipping and Copying")
@@ -58,6 +58,7 @@ while attempt_counter < 4:
         load_s3(data_dir)
         #==========#
         logger.info("Finished loading to S3")
+        break
     
     #==========Conditionals for connection issues/errors==========#
     elif response_code >= 500:
@@ -69,10 +70,12 @@ while attempt_counter < 4:
         if attempt_counter >= 4:
             print(f"Too many attempts, connection failed, ending process")
             logger.error(f"Server failure - {response_code}: {response.text}")
+            break
 
     else: 
         print(f"Connection issue - {response_code}: {response.text}")
         logger.error(f"Response is {response_code}: {response.text}")
+        break
 
 
 

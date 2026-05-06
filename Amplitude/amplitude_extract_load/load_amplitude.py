@@ -45,5 +45,5 @@ def load_s3(data_dir):
                     print(e)
                     logger.error(e)
 
-    print(f"Uploaded {filecount_start - filecount_end} files")
-    logger.info(f"Uploaded {filecount_start - filecount_end} files")
+    print(f"Uploaded {filecount_start - filecount_end} files to {bucket}")
+    logger.info(f"Uploaded {filecount_start - filecount_end} files to {bucket}")

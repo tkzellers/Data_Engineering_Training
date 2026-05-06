@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def extract_first_zip(response, temp_dir):
+def extract_zip(response, temp_dir):
         #takes the response from the API call, keeping the data in memory with the BytesIO function, so that I can then
         #extract the zip files from that "virtual" zip file, and write those into a newly made temp directory 
         
@@ -26,8 +26,10 @@ def extract_first_zip(response, temp_dir):
         with zipfile.ZipFile(zip_bytes, 'r') as z:
             z.extractall(temp_dir) #extract the zip file into the temp directory 
         end_extract = time.process_time()
-        logger.info(f"Extracted zip folder successfully. Extract time: {end_extract - start_extract} seconds")
+        print(f"Extracted successfully into {temp_dir}. Extract time: {end_extract - start_extract} seconds")
+        logger.info(f"Extracted successfully into {temp_dir}. Extract time: {end_extract - start_extract} seconds")
         return temp_dir #return the temp directory so that we can use it in the next function to find the gz files to extract
+
 
 def extract_second_gzip(directory, data_dir):
     '''directory is always the temp_dir we created in the first extraction function '''
