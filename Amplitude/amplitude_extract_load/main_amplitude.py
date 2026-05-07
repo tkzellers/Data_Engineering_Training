@@ -73,11 +73,13 @@ while attempt_counter < 4:
         if attempt_counter >= 4:
             print(f"Too many attempts, connection failed, ending process")
             logger.error(f"Server failure - {response_code}: {response.text}")
+            raise RuntimeError(f"Server failure - {response_code}: {response.text}")
             break
 
     else: 
         print(f"Connection issue - {response_code}: {response.text}")
         logger.error(f"Response is {response_code}: {response.text}")
+        raise RuntimeError(f"Connection issue - {response_code}: {response.text}")
         break
 
 
