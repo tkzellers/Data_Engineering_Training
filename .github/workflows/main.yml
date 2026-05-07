@@ -1,0 +1,26 @@
+name: bikepoint ingestion
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: bikepoint_des6_env
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+      - name: Python setup
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install Packages
+        run: pip install -r requirements.txt
+      - name: Run script
+        env:
+          b_AWS_KEY_ID: ${secrets.B_AWS_KEY_ID}
+          b_AWS_SECRET_KEY: ${secrets.B_AWS_SECRET_KEY}
+          b_AWS_BUCKET_NAME: ${secrets.B_AWS_BUCKET_NAME}
+        run: python main.py
