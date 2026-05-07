@@ -54,7 +54,5 @@ def make_api_call(base_url, params, api_key, secret_key):
     #print response info
     print(f"Response code: {response_code}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
     logger.info(f"API call made to {base_url} with params {params}. Response code: {response_code}, Response size: {response_size} bytes, Response time: {end_time - start_time} seconds")
-    if 200 < response_code < 300:
-        return response, response_code
-    else
+    return response, response_code
 
