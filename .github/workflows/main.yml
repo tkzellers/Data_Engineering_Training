@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install Packages
-        run: pip install -r requirements.txt
+        run: pip install -r TFL_Bikepoint/requirements.txt
       - name: Run script
         env:
           b_AWS_KEY_ID: ${secrets.B_AWS_KEY_ID}
