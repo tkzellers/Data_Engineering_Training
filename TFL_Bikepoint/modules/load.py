@@ -21,9 +21,9 @@ def load_data(data_dir):
 
     ##### AWS Keys
     load_dotenv()
-    api_key = os.getenv('AWS_KEY_ID')
-    secret_key = os.getenv('AWS_SECRET_KEY')
-    bucket = os.getenv('AWS_BUCKET_NAME')
+    api_key = os.getenv('b_AWS_KEY_ID')
+    secret_key = os.getenv('b_AWS_SECRET_KEY')
+    bucket = os.getenv('b_AWS_BUCKET_NAME')
     logger.info("Retrieved AWS keys")
     ##### AWS Keys
 
