@@ -23,4 +23,4 @@ jobs:
           b_AWS_KEY_ID: ${secrets.B_AWS_KEY_ID}
           b_AWS_SECRET_KEY: ${secrets.B_AWS_SECRET_KEY}
           b_AWS_BUCKET_NAME: ${secrets.B_AWS_BUCKET_NAME}
-        run: python main.py
+        run: python TFL_Bikepoint/main.py
