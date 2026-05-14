@@ -24,7 +24,7 @@ def construct_url():
 
     url['base_url'] = "https://analytics.eu.amplitude.com/api/2/export"
 
-    start_time = (datetime.now() - timedelta(hours=24)).strftime('%Y%m%dT%H')
+    start_time = (datetime.now() - timedelta(hours=1)).strftime('%Y%m%dT%H')
     end_time = datetime.now().strftime('%Y%m%dT%H')
 
     print(f"Start time: {start_time}, End time: {end_time}")

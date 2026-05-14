@@ -1,7 +1,5 @@
 
 from ipwhois import IPWhois
-import json
-import re
 
 iplist = [
     "2.23.63.230", "3.117.209.254", "4.209.209.138", "5.148.67.114", "6.33.127.132",
@@ -68,7 +66,10 @@ for i in iplist:
         name = contact.get('name')
     
     
+    #Create a table
+    #insert into that table from this script
     
+
     print('-------new-------')
     print(f'network_description: {netwk_desc}')
     print(f'network_name: {netwk_name}')

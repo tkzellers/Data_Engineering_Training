@@ -6,7 +6,8 @@ from utils.api import make_api_call
 from utils.api import construct_url
 from utils.setup_logging import setup_logging
 from utils.unzip_copy import extract_zip, extract_second_gzip
-from load_amplitude import load_s3
+from load_amplitude import load_s3, aws_client
+from extract_ipaddress import load_ips, get_ip_info
 
 print("Imported tools and modules")
 print("Starting Amplitude data extraction script")
@@ -55,10 +56,17 @@ while attempt_counter < 4:
         #==========#
         logger.info("Finished Unzipping and Copying")
 
+
         #==========Load the files from data directory into s3 (and delete them from disk)==========#
         print("Begin Loading to S3")
         logger.info("Begin Loading to S3")
-        load_s3(data_dir)
+        s3_client = aws_client()
+        
+        
+        load_ips(s3_client)
+
+
+        load_s3(data_dir, s3_client)
         #==========#
         logger.info("Finished loading to S3")
         break
