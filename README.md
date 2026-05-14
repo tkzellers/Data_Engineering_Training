@@ -35,6 +35,15 @@ utils/unzip_copy.py - extract_zip(), extract_second_gzip()
 3. The gzipped file is decompressed and opened, and then the actual .json file is written into a new directory called **"amplitude_export_data"**
 4. The temporary directory which holds the gzipped files is deleted, leaving only the unzipped .json files. 
 
+### 3a. Extracting IP Addresses and Passing them through IPWHOIS API and Loading IP Address Data
+extract_ipaddresses.py - get_ip_info(), load_ips()
+
+1. Grabs IP Addresses from the \n delimited JSON using regex
+2. Puts them into a dataframe
+3. Passes each through the IPWHOIS function (which calls an API to get all publicly available info about the owner of the IP Address)
+4. Creates 4 new fields of various descriptors parsed out of the results of the above function call
+5. Loads that data into a new folder in the same S3 bucket as a json file.
+
 ### 4. Loading the Data to AWS S3
 load_amplitude.py - load_s3()
 
@@ -43,9 +52,12 @@ load_amplitude.py - load_s3()
 3. It then checks to make sure that file is in-fact in the bucket (using a call to head_object())
 4. Then it deletes the file that was just successfully uploaded. 
 
+
+
+
 ## Planned Improvements
 
 1. Make date selection dynamic
 2. Mosularize the code in a more effective way.  Particularly the 'unzipping' functions, which are huge.
    a. Should I centralize brining in .env variables?  
-3. Add folder structure to S3 bucket and adjust scripts to organize files
+3. Look at IPWHOIS scripts and try to make more efficient (its a lengthy run)
