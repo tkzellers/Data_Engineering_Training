@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def load_s3(data_dir):
+def aws_client():
     ##### AWS Keys #######
     load_dotenv()
     api_key = os.getenv('AWS_KEY_ID')
@@ -13,19 +13,22 @@ def load_s3(data_dir):
     bucket = os.getenv('AWS_BUCKET_NAME')
     logger.info("Retrieved AWS keys")
     ##### AWS Keys #######
-
     ##### AWS Client #######
     s3_client = boto3.client(
         's3',
         aws_access_key_id = api_key,
         aws_secret_access_key = secret_key,
     )
-    ##### AWS Client #######
     logger.info(f"Established connection with '{bucket}'")
+    return s3_client
+    ##### AWS Client #######
+    
 
+
+def load_s3(data_dir, s3_client):
     #Source folder from function input (which is data_dir initialized in the main function)
     folder_path = os.path.join(data_dir) 
-
+    bucket = os.getenv('AWS_BUCKET_NAME')
     #Iterate through files in the data_dir, upload, and then delete them.
     for root,_,files in os.walk(folder_path):
         filecount_start = len(files)

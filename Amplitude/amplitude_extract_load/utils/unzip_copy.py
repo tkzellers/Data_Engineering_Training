@@ -37,13 +37,16 @@ def extract_second_gzip(directory, data_dir):
     # data_dir = "amplitude_export_data"
     # os.makedirs(data_dir, exist_ok=True) #make a new directory for outputting the data
     logger.info(f"Amplitude_export_data directory created")
-    
+
+##======= Find the unzipped folder named after TIL's Account number ======##
     try:
         unzipped_folder = next(f for f in os.listdir(directory) if f.isdigit()) #take the first folder that is named as a digit, which we know is always the one we want (the only one)
         folder_path = os.path.join(directory, unzipped_folder) #make a path to the unzipped folder 
     except:
         print("Error finding unzipped folder")
         logger.error("Error finding unzipped folder")
+
+##========##
 
     for root,_,files in os.walk(folder_path): #get into the unzipped folder, call out the files from the touple created by os.walk()
         print(f"Extracting and Copying {len(files)} files") 
