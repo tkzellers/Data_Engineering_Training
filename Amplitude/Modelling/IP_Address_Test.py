@@ -14,73 +14,79 @@ iplist = [
     "76.33.127.132", "76.46.19.3", "79.117.198.87", "79.181.133.7", "81.17.55.33",
     "81.96.125.44", "81.152.248.223", "81.158.130.101", "82.15.191.251", "82.129.10.241",
     "82.197.46.185", "83.48.120.123", "85.115.43.2", "86.190.67.139", "87.115.107.176",
-    "89.40.212.226", "90.219.89.226", "90.221.168.6", "90.243.182.2", "91.73.26.127",
-    "91.135.176.42", "92.208.177.144", "93.66.4.30", "95.231.206.38", "99.153.184.130",
-    "102.54.248.84", "102.89.83.186", "103.147.35.77", "103.169.122.25", "103.203.255.64",
-    "103.214.46.172", "103.252.5.3", "104.28.58.2", "104.28.76.99", "104.28.82.92",
-    "104.28.82.93", "104.28.110.111", "104.30.164.4", "104.156.100.7", "108.169.198.115",
-    "108.232.11.33", "109.74.56.130", "117.4.247.80", "120.232.94.59", "122.161.78.160",
-    "124.122.138.4", "130.41.55.245", "131.229.219.46", "134.219.226.53", "136.56.2.16",
-    "136.116.213.6", "136.226.56.253", "136.226.230.126", "137.239.202.42", "140.209.215.69",
-    "143.52.125.74", "143.58.140.2", "146.75.146.1", "146.75.146.134", "146.75.164.0",
-    "146.75.186.14", "146.143.68.72", "147.197.52.59", "148.76.170.201", "149.43.32.179",
-    "149.43.224.180", "151.186.181.16", "152.37.110.241", "152.59.204.7", "155.190.0.79",
-    "157.83.97.242", "158.95.18.24", "159.117.71.29", "159.213.79.4", "162.10.172.2",
-    "162.93.11.75", "162.120.242.102", "162.200.242.190", "163.114.133.1", "163.116.162.123",
-    "163.116.168.98", "163.116.211.48", "165.225.240.230", "167.14.241.75", "167.98.155.220",
-    "167.165.222.5", "170.62.166.43", "171.158.162.7", "171.158.226.92", "172.56.240.128",
-    "172.56.244.193", "172.224.237.17", "172.226.180.7", "173.219.74.6", "174.236.100.92",
-    "185.196.134.125", "185.238.221.74", "188.151.216.227", "188.190.106.80", "188.210.212.21",
-    "191.88.165.27", "193.178.113.1", "194.233.100.151", "198.144.8.137", "198.161.4.113",
-    "199.65.31.22", "200.195.123.104", "203.164.193.167", "204.193.36.4", "204.209.209.138",
-    "208.253.107.241", "212.69.41.97", "212.228.2.104", "212.244.46.229", "213.86.87.74",
-    "216.49.181.25", "216.163.254.4", "216.227.244.13", "217.33.232.24", "223.185.43.25"
+    "89.40.212.226", "90.219.89.226", "90.221.168.6", "90.243.182.2", "91.73.26.127"
 ]
 #['147.197.52.59','192.193.13.16','213.86.87.74']
 
 
 
-for i in iplist:
-    obj = IPWhois(i)
-    result = obj.lookup_rdap()
+# for i in iplist:
+#     obj = IPWhois(i)
+#     result = obj.lookup_rdap()
 
-    
-    netwk_name = result['network']['name']
+import json
 
+with open('example_output.json', 'r', encoding='utf-8') as file:
+    result = json.load(file)
+
+netwk_name = result['network']['name']
+
+try:
+    netwk_desc = result['network']['remarks'][0]['description']
+except:
+    netwk_desc = None
+
+objects_list = []
+objects = result.get('objects', {})
+for key in objects:
+    contact = objects[key].get('contact', {})
+    contact_address = contact.get('address', {})
     try:
-        netwk_desc = result['network']['remarks'][0]['description']
+        contact_address = contact_address[0]
+        contact_address = contact_address.get('value', 0)
+        contact_address = contact_address.split('\n')[0:]
+        contact_address = ", ".join(contact_address)
     except:
-       netwk_desc = '0'
-    
-    objects_list = []
-    objects = result.get('objects', {})
-    for key in objects:
-        contact = objects[key].get('contact', {})
-        contact_address = contact.get('address', {})
-        try:
-            contact_address = contact_address[0]
-            contact_address = contact_address.get('value', 0)
-            contact_address = contact_address.split('\n')[0]
-        except:
-            contact_address = '0'
-        name = contact.get('name')
-    
-    
-    #Create a table
-    #insert into that table from this script
-    
+        contact_address = None
+    name = contact.get('name')
 
-    print('-------new-------')
-    print(f'network_description: {netwk_desc}')
-    print(f'network_name: {netwk_name}')
-    print(f'objects: {name}, {contact_address}')
+##---SOMETHING TO TRY
+# def format_contact_address(contact):
+#     address = contact.get("address")
+#     if not isinstance(address, list) or not address:
+#         return None
 
-    #two different regex queries
-    #one for "name"
-    #one for "address", with "value"
+#     value = address[0].get("value", "")
+#     if not isinstance(value, str):
+#         return None
 
-    # print(re.findall("'name':( .*?),", str(result)))
-    # print(re.findall("'value':( .*?)\n", str(result)))
+#     return ", ".join(value.splitlines())
+
+# objects_list = []
+# for obj in result.get("objects", {}).values():
+#     contact = obj.get("contact", {})
+#     contact_address = format_contact_address(contact)
+#     objects_list.append(contact_address)
+
+
+
+
+#Create a table
+#insert into that table from this script
+
+
+print('-------new-------')
+print(f'network_description: {netwk_desc}')
+print(f'network_name: {netwk_name}')
+print(f'name: {name}')
+print(f'address: {contact_address}')
+
+#two different regex queries
+#one for "name"
+#one for "address", with "value"
+
+# print(re.findall("'name':( .*?),", str(result)))
+# print(re.findall("'value':( .*?)\n", str(result)))
 
 #print(str(result))
 

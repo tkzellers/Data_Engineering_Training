@@ -1,39 +1,24 @@
-import json
 import re
 import os
 from ipwhois import IPWhois
 import pandas as pd
-import time
 from datetime import datetime
 from dotenv import load_dotenv
-import logging
-import boto3
-
-
-##### AWS Keys #######
-# load_dotenv()
-# api_key = os.getenv('AWS_KEY_ID')
-# secret_key = os.getenv('AWS_SECRET_KEY')
-# bucket = os.getenv('AWS_BUCKET_NAME')
-# ##### AWS Keys #######
-
-# ##### AWS Client #######
-# s3_client = boto3.client(
-#     's3',
-#     aws_access_key_id = api_key,
-#     aws_secret_access_key = secret_key,
-# )
 
 
 def get_ip_info(ip):
         try:
             obj = IPWhois(ip)
             result = obj.lookup_rdap()
+            
+            name = contact.get('name')
             netwk_name = result['network']['name']
+            
             try:
                 netwk_desc = result['network']['remarks'][0]['description']
             except:
                 netwk_desc = '0'
+            
             objects = result.get('objects', {})
             for key in objects:
                 contact = objects[key].get('contact', {})
@@ -41,13 +26,14 @@ def get_ip_info(ip):
                 try:
                     contact_address = contact_address[0]
                     contact_address = contact_address.get('value', 0)
-                    contact_address = contact_address.split('\n')[0]
+                    contact_address = contact_address.split('\n')[0:]
                 except:
                     contact_address = '0'
-                name = contact.get('name')
+                
                 return {'netwk_desc':netwk_desc, 'netwk_name':netwk_name, 'name':name, 'contact_address':contact_address}
         except:
             return {'0':'0', '0':'0', '0':'0', '0':'0'}
+        
 
 def load_ips(s3_client):
     ips = []
