@@ -4,41 +4,44 @@ from ipwhois import IPWhois
 import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
+import logging
 
+logger = logging.getLogger(__name__)
 
 def get_ip_info(ip):
+        '''
+        Takes an IP address and returns a dict of name, address, and network name 
+        associated with that IP address - using the "ipwhois" library.
+        This function will be used as a .map() function.
+
+        arguments: ip = string, an IP address. 
+        '''
         try:
-            obj = IPWhois(ip)
-            result = obj.lookup_rdap()
-            
-            
-            netwk_name = result['network']['name']
-            
+            obj = IPWhois(ip) #prepare an 'obj' to lookup using ipwhois
+            result = obj.lookup_rdap() #lookup the IP address using the rdap/whois servers, return a python dictionary
             try:
-                netwk_desc = result['network']['remarks'][0]['description']
-            except:
-                netwk_desc = '0'
-            
+                netwk_name = result['network']['name']
+            except: 
+                netwk_name = None
             objects = result.get('objects', {})
-            for key in objects:
-                name = contact.get('name')    
+            for key in objects:   
                 contact = objects[key].get('contact', {})
+                name = contact.get('name')
                 contact_address = contact.get('address', {})
                 try:
-                    contact_address = contact_address[0]
-                    contact_address = contact_address.get('value', 0)
-                    contact_address = contact_address.split('\n')[0:]
+                    contact_address = contact_address[0].get('value', 0)
                 except:
-                    contact_address = '0'
+                    contact_address = None
                 
-                return {'netwk_desc':netwk_desc, 'netwk_name':netwk_name, 'name':name, 'contact_address':contact_address}
+                return {'name':name, 'contact_address':contact_address, 'netwk_name': netwk_name}}
         except:
-            return {'0':'0', '0':'0', '0':'0', '0':'0'}
+            return {'name':None, 'contact_address': None, 'netwk_name': None}
         
 
 def load_ips(s3_client):
     ips = []
     folder_path = os.path.join('amplitude_export_data')
+    logger.info(f"Retrieving data from local storage at '{folder_path}'")
     print(folder_path)
 
     for root,_,files in os.walk(folder_path):
