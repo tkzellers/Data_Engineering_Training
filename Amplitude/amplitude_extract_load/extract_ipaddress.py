@@ -11,7 +11,7 @@ def get_ip_info(ip):
             obj = IPWhois(ip)
             result = obj.lookup_rdap()
             
-            name = contact.get('name')
+            
             netwk_name = result['network']['name']
             
             try:
@@ -21,6 +21,7 @@ def get_ip_info(ip):
             
             objects = result.get('objects', {})
             for key in objects:
+                name = contact.get('name')    
                 contact = objects[key].get('contact', {})
                 contact_address = contact.get('address', {})
                 try:

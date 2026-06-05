@@ -26,9 +26,10 @@ iplist = [
 
 import json
 
-with open('example_output.json', 'r', encoding='utf-8') as file:
+with open('blah.json', 'r', encoding='utf-8') as file:
     result = json.load(file)
 
+name = contact.get('name')
 netwk_name = result['network']['name']
 
 try:
@@ -42,10 +43,10 @@ for key in objects:
     contact = objects[key].get('contact', {})
     contact_address = contact.get('address', {})
     try:
-        contact_address = contact_address[0]
-        contact_address = contact_address.get('value', 0)
-        contact_address = contact_address.split('\n')[0:]
-        contact_address = ", ".join(contact_address)
+        # contact_address = contact_address[0]
+        contact_address = contact_address[0].get('value', 0)
+        # contact_address = contact_address.split('\n')[0:]
+        # contact_address = ", ".join(contact_address)
     except:
         contact_address = None
     name = contact.get('name')
